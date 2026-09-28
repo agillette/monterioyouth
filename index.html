@@ -2,19 +2,85 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Monterio Youth</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Monte Rio Youth</title>
+  <meta name="description" content="Monte Rio Youth. Stay tuned for updates and events.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Instrument+Sans:wght@400;500&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
-    <h1>Monterio Youth</h1>
-  </header>
-  <main>
-    <p>Welcome. This site is under construction.</p>
-  </main>
-  <footer>
-    <p>&copy; 2026 Monterio Youth</p>
-  </footer>
+<!-- BODY-START -->
+<main class="page">
+  <h1 class="wordmark" aria-label="Monte Rio Youth">
+    <span>Monte<br class="phone-break"> Rio</span>
+    <span>Youth</span>
+  </h1>
+
+  <div class="foot">
+    <p class="tagline">Stay tuned for updates and&nbsp;events.</p>
+
+    <!--
+      Static site: the form needs a service to receive submissions.
+      Create a free form at https://formspree.io and replace YOUR_FORM_ID below.
+    -->
+    <form class="signup" id="signup" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" novalidate>
+      <div class="signup-row">
+        <input class="signup-input" id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" aria-label="Email address" required>
+        <button class="signup-button" id="signup-submit" type="submit">Keep me posted</button>
+      </div>
+      <p class="signup-status" id="signup-status" role="status" aria-live="polite"></p>
+    </form>
+
+    <p class="place">Made in Vacation Wonderland</p>
+  </div>
+</main>
+
+<script>
+  (function () {
+    var form = document.getElementById('signup');
+    var email = document.getElementById('email');
+    var status = document.getElementById('signup-status');
+    var button = document.getElementById('signup-submit');
+
+    function say(text, kind) {
+      status.textContent = text;
+      status.dataset.kind = kind || '';
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      say('');
+      if (!email.checkValidity()) {
+        say('Enter a valid email address.', 'error');
+        email.focus();
+        return;
+      }
+      var action = form.getAttribute('action');
+      if (action.indexOf('YOUR_FORM_ID') !== -1) {
+        // Form service not connected yet; show the success state so the page can be previewed.
+        say('You’re on the list. (Preview mode: form not connected yet.)', 'ok');
+        form.reset();
+        return;
+      }
+      button.disabled = true;
+      fetch(action, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new FormData(form)
+      }).then(function (r) {
+        if (!r.ok) throw new Error('bad response');
+        say('You’re on the list. Thanks!', 'ok');
+        form.reset();
+      }).catch(function () {
+        say('Something went wrong. Try again in a moment.', 'error');
+      }).finally(function () {
+        button.disabled = false;
+      });
+    });
+  })();
+</script>
+<!-- BODY-END -->
 </body>
 </html>

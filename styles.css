@@ -1,21 +1,193 @@
+/* Monte Rio Youth — two colors, swapped between themes. */
 :root {
-  color-scheme: light dark;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  line-height: 1.5;
+  --ground: #f3f1e8;          /* warm paper */
+  --ink: #0f3b33;             /* river green */
+  --ink-soft: rgba(15, 59, 51, 0.62);
+  --rule: rgba(15, 59, 51, 0.28);
+  --error: #a8321f;
+
+  --display: "Archivo Black", "Arial Black", Impact, sans-serif;
+  --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+
+  color-scheme: light;
 }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0f3b33;
+    --ink: #f3f1e8;
+    --ink-soft: rgba(243, 241, 232, 0.66);
+    --rule: rgba(243, 241, 232, 0.32);
+    --error: #ffb4a3;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground: #0f3b33;
+  --ink: #f3f1e8;
+  --ink-soft: rgba(243, 241, 232, 0.66);
+  --rule: rgba(243, 241, 232, 0.32);
+  --error: #ffb4a3;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
 
 body {
-  margin: 0 auto;
-  max-width: 48rem;
-  padding: 1.5rem 1rem;
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 1rem;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
 }
 
-header, footer {
-  text-align: center;
+.page {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 3rem;
+  padding-block: clamp(1.25rem, 3vw, 2.5rem);
+  padding-inline: clamp(1rem, 4vw, 3rem);
 }
 
-footer {
-  margin-top: 3rem;
-  font-size: 0.875rem;
-  opacity: 0.7;
+/* Wordmark: two lines, one size, sized so "MONTE RIO" fills the width. */
+.wordmark {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(3.25rem, 13.8vw, 15rem);
+  line-height: 0.92;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+}
+
+.wordmark span {
+  display: block;
+  white-space: nowrap;
+}
+
+.phone-break { display: none; } /* becomes a line break on phones */
+
+.foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 2.5rem 3rem;
+  align-items: end;
+  padding-top: 2.5rem; /* matches the row gap below the form */
+  border-top: 2px solid var(--ink);
+}
+
+.tagline {
+  margin: 0;
+  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  max-width: 18ch;
+  margin-bottom: -0.12em; /* pull the last line's bottom onto the input's bottom edge */
+}
+
+/* Status sits below the form without adding height, so the input's bottom
+   edge is the form's bottom edge and the tagline can align to it. */
+.signup { position: relative; display: grid; gap: 0.6rem; }
+
+.signup-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.signup-input,
+.signup-button {
+  font: inherit;
+  font-size: 1rem;
+  height: 3.25rem;
+  border-radius: 0;
+}
+
+.signup-input {
+  flex: 1 1 14rem;
+  min-width: 0;
+  padding: 0 1rem;
+  color: var(--ink);
+  background: transparent;
+  border: 2px solid var(--ink);
+}
+
+.signup-input::placeholder { color: var(--ink-soft); }
+
+.signup-button {
+  flex: 0 0 auto;
+  padding: 0 1.5rem;
+  font-weight: 500;
+  color: var(--ground);
+  background: var(--ink);
+  border: 2px solid var(--ink);
+  cursor: pointer;
+}
+
+.signup-button:hover { opacity: 0.88; }
+.signup-button:disabled { opacity: 0.6; cursor: wait; }
+
+.signup-input:focus-visible,
+.signup-button:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.signup-status {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  color: var(--ink-soft);
+}
+.signup-status[data-kind="ok"] { color: var(--ink); }
+.signup-status[data-kind="error"] { color: var(--error); }
+
+.place {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+/* Phone: stack, and let the tagline + form float to the middle of the free
+   space between the wordmark and the fine print instead of piling at the bottom. */
+@media (max-width: 40rem) {
+  .page { gap: 2rem; }
+  /* Three lines, MONTE / RIO / YOUTH, sized so "MONTE" fills the width; no rule beneath. */
+  .wordmark { font-size: 23vw; line-height: 0.9; }
+  .phone-break { display: inline; }
+  .foot {
+    border-top: 0;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* base rule's "end" would mean right-aligned here */
+    gap: 1.25rem;
+    padding-top: 2rem;
+  }
+  .tagline { max-width: none; margin-top: auto; margin-bottom: 0; }
+  .signup-status { position: static; }
+  .place { margin-top: auto; padding-top: 1rem; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .signup-button { transition: opacity 120ms ease; }
 }
