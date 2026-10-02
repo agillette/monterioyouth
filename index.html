@@ -26,8 +26,9 @@
         <input class="signup-input" id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" aria-label="Email address" required>
         <button class="signup-button" id="signup-submit" type="submit">Keep me posted</button>
       </div>
-      <!-- Honeypot: invisible to people, bots tend to fill it. Submissions with a value are dropped. -->
-      <div class="hp" aria-hidden="true">
+      <!-- Honeypot: invisible to people, bots tend to fill it. Submissions with a value are dropped.
+           Hidden inline as well as in styles.css so a stale cached stylesheet can never reveal it. -->
+      <div class="hp" aria-hidden="true" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden">
         <label for="website">Leave this field empty</label>
         <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
       </div>
