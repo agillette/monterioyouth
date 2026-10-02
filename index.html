@@ -21,14 +21,15 @@
   <div class="foot">
     <p class="tagline">Stay tuned for updates and&nbsp;events.</p>
 
-    <!--
-      Static site: the form needs a service to receive submissions.
-      Create a free form at https://formspree.io and replace YOUR_FORM_ID below.
-    -->
-    <form class="signup" id="signup" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" novalidate>
+    <form class="signup" id="signup" novalidate>
       <div class="signup-row">
         <input class="signup-input" id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" aria-label="Email address" required>
         <button class="signup-button" id="signup-submit" type="submit">Keep me posted</button>
+      </div>
+      <!-- Honeypot: invisible to people, bots tend to fill it. Submissions with a value are dropped. -->
+      <div class="hp" aria-hidden="true">
+        <label for="website">Leave this field empty</label>
+        <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
       </div>
       <p class="signup-status" id="signup-status" role="status" aria-live="polite"></p>
     </form>
@@ -39,8 +40,16 @@
 
 <script>
   (function () {
+    // Supabase: inserts go straight to the REST API with the publishable key.
+    // The key is safe to expose; row-level security on the table restricts
+    // anonymous clients to INSERT only.
+    var SUPABASE_URL = 'https://iulgbnyhjhodxfygjhma.supabase.co';
+    var SUPABASE_KEY = 'sb_publishable_sXssaQwC9x1AYbbecrpFhA_1V4cDyc-';
+    var TABLE = 'signups';
+
     var form = document.getElementById('signup');
     var email = document.getElementById('email');
+    var honeypot = document.getElementById('website');
     var status = document.getElementById('signup-status');
     var button = document.getElementById('signup-submit');
 
@@ -57,22 +66,30 @@
         email.focus();
         return;
       }
-      var action = form.getAttribute('action');
-      if (action.indexOf('YOUR_FORM_ID') !== -1) {
-        // Form service not connected yet; show the success state so the page can be previewed.
-        say('You’re on the list. (Preview mode: form not connected yet.)', 'ok');
+      if (honeypot.value) {
+        // Likely a bot. Pretend it worked and send nothing.
+        say('You\u2019re on the list. Thanks!', 'ok');
         form.reset();
         return;
       }
       button.disabled = true;
-      fetch(action, {
+      fetch(SUPABASE_URL + '/rest/v1/' + TABLE, {
         method: 'POST',
-        headers: { 'Accept': 'application/json' },
-        body: new FormData(form)
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ email: email.value.trim().toLowerCase() })
       }).then(function (r) {
-        if (!r.ok) throw new Error('bad response');
-        say('You’re on the list. Thanks!', 'ok');
-        form.reset();
+        if (r.ok || r.status === 409) {
+          // 409 = already signed up (unique email); treat as success.
+          say('You\u2019re on the list. Thanks!', 'ok');
+          form.reset();
+        } else {
+          throw new Error('status ' + r.status);
+        }
       }).catch(function () {
         say('Something went wrong. Try again in a moment.', 'error');
       }).finally(function () {
